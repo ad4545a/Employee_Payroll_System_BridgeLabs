@@ -1,5 +1,6 @@
 const express = require('express');
 const fileHandler = require('./fileHandler');
+const e = require('express');
 
 const app = express();
 const PORT = 3000;
@@ -12,7 +13,25 @@ app.set('view engine', 'ejs');
 // Dashboard - Display all employees
 app.get('/', async (req, res) => {
     const employees = await fileHandler.read();
-    res.render('index', { employees });
+    const totalEmployees = employees.length;
+    // Calculate unique departments (positions)
+    const uniqueDepartments = new Set();
+    for (const employee of employees) {
+        uniqueDepartments.add(employee.position);
+    }
+    const totalDepartments = uniqueDepartments.size;
+    let totalTax = 0;
+    for (const employee of employees) {
+        totalTax += employee.basicSalary * 0.12;
+    }
+
+    let totalnetSalary = 0;
+    for (const employee of employees) {
+        totalnetSalary += employee.basicSalary - (employee.basicSalary * 0.12);
+    }
+
+
+    res.render('index', { employees, totalEmployees, totalDepartments, totalTax, totalnetSalary });
 });
 
 // Show add employee form
